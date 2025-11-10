@@ -1,6 +1,6 @@
 // Command: bank.js
 // Version: 5.0
-// Author: Mahi-- & Gemini
+// Author: Christus 
 // System Context: Wednesday, June 11, 2025 - Bangladesh Time (+06)
 
 const { MongoClient, ObjectId } = require("mongodb");
@@ -274,4 +274,5 @@ module.exports = {
                 message.reply(`Unknown command. Use '${p}bank help' to see the list of available commands.`);
         }
     }
+
 };
