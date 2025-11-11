@@ -1,122 +1,129 @@
-const fs = require("fs-extra");
-const axios = require("axios");
-const path = require("path");
-const { getPrefix } = global.utils;
 const { commands, aliases } = global.GoatBot;
 
 module.exports = {
-  config: {
-    name: "help",
-    version: "1.17",
-    author: "Aesther",
-    countDown: 5,
-    role: 0,
-    shortDescription: {
-      en: "View command usage and list all commands directly",
-    },
-    longDescription: {
-      en: "View command usage and list all commands directly",
-    },
-    category: "info",
-    guide: {
-      en: "{pn} / help cmdName ",
-    },
-    priority: 1,
-  },
+config: {
+name: "help",
+version: "4.1",
+author: "Christus",
+countDown: 2,
+role: 0,
+shortDescription: { en: "Command list + details" },
+category: "info",
+guide: { en: "help <command> — show command details, -ai for suggestions" },
+},
 
-  onStart: async function ({ message, args, event, threadsData, role }) {
-    const { threadID } = event;
-    const threadData = await threadsData.get(threadID);
-    const prefix = getPrefix(threadID);
+onStart: async function ({ message, args, event, usersData }) {
+try {
+const uid = event.senderID;
 
-    const deleteMessageAfterOneMinute = async (msgID) => {
-      setTimeout(async () => {
-        try {
-          await message.unsend(msgID);
-        } catch (error) {
-          console.error("Error unsending message:", error);
-        }
-      }, 60000); // 60 seconds
-    };
+// --- Avatar (toujours inclus) ---  
+  let avatar = null;  
+  try {  
+    avatar = await usersData.getAvatarUrl(uid);  
+  } catch {}  
+  if (!avatar) avatar = "https://i.imgur.com/TPHk4Qu.png";  
 
-    if (args.length === 0) {
-      const categories = {};
-      let msg = "";
+  // --- Mode AI Suggestion ---  
+  if (args[0]?.toLowerCase() === "-ai") {  
+    const keyword = args[1]?.toLowerCase() || "";  
+    const allCmds = Array.from(commands.keys());  
+    const suggestions = allCmds  
+      .map(cmd => {  
+        const matchPercent = Math.floor(  
+          Math.min(100, Math.max(40, 100 - Math.abs(cmd.length - keyword.length) * 10))  
+        );  
+        return { cmd, percent: matchPercent };  
+      })  
+      .filter(c => c.cmd.includes(keyword))  
+      .sort((a, b) => b.percent - a.percent)  
+      .slice(0, 10);  
 
-      msg += `》[📑𝗟𝗜𝗦𝗧 - 𝗖𝗠𝗗𝙨]\n〓〓〓〓〓〓〓〓〓〓〓\n\n`;
+    if (!suggestions.length)  
+      return message.reply({ body: "❌ No smart suggestions found.", attachment: await global.utils.getStreamFromURL(avatar) });  
 
-      for (const [name, value] of commands) {
-        if (value.config.role > 1 && role < value.config.role) continue;
+    let body = "🤖 Smart suggestions:\n";  
+    suggestions.forEach(s => {  
+      body += `🔹 .${s.cmd} (${s.percent}% match)\n`;  
+    });  
 
-        const category = value.config.category || "Uncategorized";
-        categories[category] = categories[category] || { commands: [] };
-        categories[category].commands.push(name);
-      }
+    return await message.reply({  
+      body,  
+      attachment: await global.utils.getStreamFromURL(avatar),  
+    });  
+  }  
 
-      Object.keys(categories).forEach((category) => {
-        if (category !== "info") {
-          msg += ` \n✪ ━「${category.toUpperCase()}」━`;
-          const names = categories[category].commands.sort();
-          for (let i = 0; i < names.length; i += 3) {
-            const cmds = names.slice(i, i + 3).map((item) => `\n⌨︎_${item}`);
-            msg += ` ${cmds.join(" ".repeat(Math.max(1, 10 - cmds.join("").length)))}`;
-          }
+  // --- Mode liste générale ---  
+  if (!args || args.length === 0) {  
+    let body = "📜 𝐆𝐎𝐀𝐓 𝐁𝐎𝐓 𝐂𝐎𝐌𝐌𝐀𝐍𝐃 𝐋𝐈𝐒𝐓\n\n";  
 
-          msg += ``;
-        }
-      });
+    const cats = {};  
+    for (let [name, cmd] of commands) {  
+      const category = (cmd.config.category || "Other").toString();  
+      if (!cats[category]) cats[category] = [];  
+      cats[category].push(name);  
+    }  
 
-      const totalCommands = commands.size;
-      msg += `\n\n〓〓〓〓〓〓〓〓〓〓〓\n➪[📅] Total Commands [${totalCommands}]\n➪[🛄] OWNER: The GODDESS Aesther\n➪[🔱] NB: use called in any report`;
-      msg += `\n\n/// 💬 AESTHER BOT ////`;
-      msg += ``;
+    for (const category of Object.keys(cats).sort()) {  
+      const list = cats[category].sort();  
+      body += `📂${category}\n`;  
+      body += list.length ? list.map(c => `✿ ${c}`).join("  ") : "No commands";  
+      body += "\n\n";  
+    }  
 
-      const response = await message.reply({ body: msg });
-      deleteMessageAfterOneMinute(response.messageID);
-    } else {
-      const commandName = args[0].toLowerCase();
-      const command = commands.get(commandName) || commands.get(aliases.get(commandName));
+    body += `📊 𝐓𝐨𝐭𝐚𝐥 𝐂𝐨𝐦𝐦𝐚𝐧𝐝𝐬: ${commands.size}\n`;  
+    body += `🔧 𝐂𝐨𝐦𝐦𝐚𝐧𝐝 𝐈𝐧𝐟𝐨: .help <command>\n`;  
+    body += `🔍 𝐒𝐞𝐚𝐫𝐜𝐡: .help -s <keyword>\n`;  
+    body += `🤖 𝐀𝐈 𝐒𝐮𝐠𝐠𝐞𝐬𝐭: .help -ai <command>\n\n`;  
+    body += `✨ 𝐏𝐑𝐎 𝐄𝐃𝐈𝐓𝐈𝐎𝐍 𝐯𝟔1 𝗖𝗛𝗥𝗜𝗦𝗧𝗨𝗦`;  
 
-      if (!command) {
-        await message.reply(`Command "${commandName}" not found.`);
-      } else {
-        const configCommand = command.config;
-        const roleText = roleTextToString(configCommand.role);
-        const author = configCommand.author || "Unknown";
+    return await message.reply({  
+      body,  
+      attachment: await global.utils.getStreamFromURL(avatar),  
+    });  
+  }  
 
-        const longDescription = configCommand.longDescription ? configCommand.longDescription.en || "No description" : "No description";
+  // --- Mode info commande spécifique ---  
+  const query = args[0].toLowerCase();  
+  const command = commands.get(query) || commands.get(aliases.get(query));  
+  if (!command)  
+    return message.reply({  
+      body: `❌ Command "${query}" not found.`,  
+      attachment: await global.utils.getStreamFromURL(avatar),  
+    });  
 
-        const guideBody = configCommand.guide?.en || "No guide available.";
-        const usage = guideBody.replace(/{p}/g, prefix).replace(/{n}/g, configCommand.name);
+  const cfg = command.config || {};  
+  const roleString = { 0: "All users", 1: "Group Admins", 2: "Bot Admins" }[cfg.role] || "Unknown";  
+  const aliasGlobal = Array.isArray(cfg.aliases) && cfg.aliases.length ? cfg.aliases.join(", ") : "Do not have";  
+  const desc = cfg.longDescription?.en || cfg.shortDescription?.en || "No description.";  
+  const usageTemplate = cfg.guide?.en || cfg.name;  
 
-        const response = `🟢𝗡𝗔𝗠𝗘⚪\n--------------------------------------\n
- 〉[ ${configCommand.name}]\n
-🟢𝗜𝗡𝗙𝗢⚪\n--------------------------------------\n
-   〉[description]:\n▶︎${longDescription}\n
-   〉🔵[Other-names]:\n▶︎${configCommand.aliases ? configCommand.aliases.join(", ") : "Do not have"} Other names in your group: Do not have\n
-   〉🔵[Version]:\n▶︎${configCommand.version || "1.0"}\n
-   〉🔵[Role]:\n▶︎${roleText}\n
-   〉🔵Time per command:\n ▶︎${configCommand.countDown || 1}s\n
-   〉🔵[Author]:\n▶︎${author}\n
-🟢𝗨𝗦𝗔𝗚𝗘⚪\n--------------------------------------\n
-▶︎ ${usage}\n--------------------------------------\n🟢 by-AE-STER ⚪`;
+  const card = [  
+    `╭── 🎯 ${cfg.name.toUpperCase()} ──✦`,  
+    `│ 📝 𝐃𝐞𝐬𝐜𝐫𝐢𝐩𝐭𝐢𝐨𝐧: ${desc}`,  
+    `│ 📂 𝐂𝐚𝐭𝐞𝐠𝐨𝐫𝐲: ${cfg.category || "Misc"}`,  
+    `├── 🔤 𝐀𝐋𝐈𝐀𝐒𝐄𝐒 ──✦`,  
+    `│ 🌐 𝐆𝐥𝐨𝐛𝐚𝐥: ${aliasGlobal}`,  
+    `│ 💬 𝐓𝐡𝐫𝐞𝐚𝐝: Do not have`,  
+    `├── ⚙️ 𝐂𝐎𝐍𝐅𝐈𝐆𝐔𝐑𝐀𝐓𝐈𝐎𝐍 ──✦`,  
+    `│ 🛡️ 𝐑𝐨𝐥𝐞: ${cfg.role} (${roleString})`,  
+    `│ ⏱️ 𝐂𝐨𝐨𝐥𝐝𝐨𝐰𝐧: ${cfg.countDown || 1}s`,  
+    `│ 🚀 𝐕𝐞𝐫𝐬𝐢𝐨𝐧: ${cfg.version || "1.0"}`,  
+    `│ 👨‍💻 𝐀𝐮𝐭𝐡𝐨𝐫: ${cfg.author || "Unknown"}`,  
+    `├── 💡 𝐔𝐒𝐀𝐆𝐄 ──✦`,  
+    `│ Use .${usageTemplate}`,  
+    `╰────────────────✦`,  
+    ``,  
+    `🔧 𝐎𝐩𝐭𝐢𝐨𝐧𝐬: .help ${cfg.name.toLowerCase()} [-u | -i | -a]`,  
+  ].join("\n");  
 
-        const responseMessage = await message.reply(response);
-        deleteMessageAfterOneMinute(responseMessage.messageID);
-      }
-    }
-  },
+  return await message.reply({  
+    body: card,  
+    attachment: await global.utils.getStreamFromURL(avatar),  
+  });  
+} catch (err) {  
+  console.error("HELP CMD ERROR:", err);  
+  await message.reply(`⚠️ Error: ${err.message || err}`);  
+}
+
+},
 };
-
-function roleTextToString(roleText) {
-  switch (roleText) {
-    case 0:
-      return "0 (All users)";
-    case 1:
-      return "1 (Group administrators)";
-    case 2:
-      return "2 (Admin bot)";
-    default:
-      return "Unknown role";
-  }
-            }
