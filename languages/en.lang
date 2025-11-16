@@ -4,7 +4,8 @@ Goat.autoRestart1=Bot will auto restart in %1
 Goat.autoRestart2=Bot will auto restart by cron job: %1
 Goat.googleApiTokenExpired=Google API refresh token has expired or been revoked, please get a new token at https://developers.google.com/oauthplayground/
 
-# bot/login/login.js
+bot/login/login.js
+
 login.currentlyLogged=Login in progress
 login.notFoundDirAccount=Cannot find file %1
 login.loginToken=Login with access token
@@ -63,45 +64,48 @@ login.startBotSuccess=Bot has been started successfully, start receiving message
 
 version.tooOldVersion=You are using a too old version of Goat-Bot, please update to the latest version by typing the command: %1 into the cmd/console/terminal/shell
 
-# bot/custom.js
+bot/custom.js
+
 custom.refreshedFb_dtsg=Refreshed fb_dtsg and jazoest successfully
 custom.refreshedFb_dtsgError=An error occurred when refreshing fb_dtsg and jazoest
 
-# bot/login/loadData.js
+bot/login/loadData.js
+
 loadData.loadThreadDataSuccess=Loaded %1 group's data successfully!
 loadData.loadUserDataSuccess=Loaded %1 user's data successfully!
 loadData.refreshingThreadData=Updating the information of the groups...
 loadData.refreshThreadDataSuccess=Updated information of %1 group!
 loadData.refreshThreadDataError=Something went wrong when updating the groups information!
 
-# bot/login/loadScripts.js
+bot/login/loadScripts.js
+
 loadScripts.loadScriptsError=The %1 files have an error during loading:
 loadScripts.loadScriptsNotMatchOrigin=The %1 files do not match the original files on the github project, make sure that these command files are reliable:
 loadScripts.NOT_FOUND=NOT FOUND IN THE ORIGINAL SOURCE CODE:
 loadScripts.NOT_MATCH=DOES NOT MATCH THE ORIGINAL SOURCE CODE:
 
-# bot/login/socketIO.js
+bot/login/socketIO.js
+
 socketIO.connected=Connected to socket.io server
 socketIO.error=An error occurred when connecting to the socket.io server
 
-# bot/handler/handlerCheckData.js
+bot/handler/handlerCheckData.js
+
 handlerCheckData.cantCreateThread=Groups with id '%1' cannot be written to the database!
 handlerCheckData.cantCreateUser=Users with id '%1' cannot be written to the database!
 
-# bot/handler/handlerEvents.js
+bot/handler/handlerEvents.js
+
 handlerEvents.userBanned=You have been banned from using the bot\n» Reason: %1\n» Time: %2\n» User ID: %3
 handlerEvents.threadBanned=This group has been banned from using the bot\n» Reason: %1\n» Time: %2\n» Thread ID: %3
 handlerEvents.onlyAdminBox=This group is currently enabled only group administrators can use the bot
 handlerEvents.onlyAdminBot=❌ | Currently only bot's admin can use bot
-
-# ✅ MODIFICATION DES COMMANDES INTRROUVABLES
-handlerEvents.commandNotFound=𝖧𝖾𝗒 ${userName}, 𝗒𝗈𝗎 𝗍𝗒𝗉𝖾𝗱 𝗈𝗇𝗅𝗒 "${prefix}" — 𝗍𝗋𝗒 "${prefix}help" 𝗍𝗈 𝗌𝖾𝖾 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌.
-handlerEvents.commandNotFound2=𝖧𝖾𝗒 ${userName}, 𝗒𝗈𝗎 𝗍𝗒𝗉𝖾𝗱 𝗈𝗇𝗅𝗒 "${prefix}" — 𝗍𝗋𝗒 "${prefix}help" 𝗍𝗈 𝗌𝖾𝖾 𝖺𝗏𝖺𝗂𝗅𝖺𝖻𝗅𝖾 𝖼𝗈𝗆𝗆𝖺𝗇𝖽𝗌.
-
+handlerEvents.commandNotFound=Command "%1" does not exist, type %2help to see all available commands
+handlerEvents.commandNotFound2=The command you are using does not exist, type %1help to see all available commands
 handlerEvents.commandSyntaxError=command ta emon na, please type %1help %2 to se all command ┌─────═━┈━═─────┐
-  🪄 Your Current Prefix ✨
-  🌐  System Prefix: @
-  🛸  Group Prefix: @
+🪄 Your Current Prefix ✨
+🌐  System Prefix: @
+🛸  Group Prefix: @
 └─────═━┈━═─────┘
 handlerEvents.onlyAdmin=❌ | Only group administrators can use the command "%1"
 handlerEvents.onlyAdminToUseOnReply=❌ | Only group administrators can use the reply function of the command "%1"
@@ -121,10 +125,12 @@ handlerEvents.cannotFindCommandName=❌ Cannot find command name to execute this
 handlerEvents.cannotFindCommand=❌ Cannot find command "%1" to execute this reply!
 handlerEvents.notMatched=this command does not require a prefix to start with.
 
-# bot/autoUptime.js
+bot/autoUptime.js
+
 autoUptime.autoUptimeTurnedOn=AutoUptime mode turned on
 
-# database/controller/index.js
+database/controller/index.js
+
 indexController.connectingMongoDB=Connecting a MONGODB database
 indexController.connectMongoDBSuccess=Successfully connected mongodb database!
 indexController.connectMongoDBError=An error occurred when connecting the Mongodb database:
@@ -132,7 +138,8 @@ indexController.connectingMySQL=Connecting a SQLITE database
 indexController.connectMySQLSuccess=Successfully connected SQLITE database!
 indexController.connectMySQLError=An error occurred while connecting to a SQLITE database:
 
-# updater.js
+updater.js
+
 updater.updateTooFast=Please wait at least 5 minutes after the latest commit to update without error, %1 minutes %2 seconds left
 updater.latestVersion=You are using the latest version
 updater.cantFindVersion=You are using an undefined version (%1), please check your package.json file again
@@ -145,16 +152,20 @@ updater.backupSuccess=Successfully backed up changed files, see in the %1 folder
 updater.restartToApply=. Restart the bot to apply the new version
 updater.skipFile=There is a new version of the %1 file, but you have skipped this file during the update process with the comment %2 in this file
 
-# dashboard/routes/verifyfbid.js
+dashboard/routes/verifyfbid.js
+
 verifyfbid.sendCode=Your verification code is:\n%1\nThe verification code is valid for %2 minutes
 
-# utils.js
+utils.js
+
 utils.errorOccurred=❌ An error occurred:\n\n%1
 
-# for command
+for command
+
 command.restartedBot=Bot has been restarted
 
-# dashboard/app.js
+dashboard/app.js
+
 app.googleApiRefreshTokenExpired=Google API refresh token has expired or been revoked, please get a new token at https://developers.google.com/oauthplayground/
 app.tooManyRequests=Too many requests in the last minute. Please try again later.
 app.notPermissionChangeFbstate=You do not have permission to change fbstate!
